@@ -15,6 +15,7 @@ NULL
 ##' @param file NetCDF file
 ##' @param varname NetCDF variable to access
 ##' @return nchelper object
+##' @export
 ##' @examples
 ##' f <- "E:\\DATA\\Reynolds\\sst.wkmean.1990-present.nc"
 ##' x <- nchelper(f, varname = "sst")
@@ -42,12 +43,18 @@ nchelper <- function(file, varname = NULL) {
     structure(.Data = list(file = file, varinq = varinq, dims = dims), class = "nchelper")
 }
 
+##' @rdname nchelper
+##' @export
 dim.nchelper <- function(x) {
     x$dims
 }
+##' @rdname nchelper
+##' @export
 names.nchelper <- function(x) {
     x$varinq$name
 }
+##' @rdname nchelper
+##' @export
 "[.nchelper" <- function(x, ..., drop = TRUE) {
     ncdims <- dim(x)
     ndims <- length(ncdims)
