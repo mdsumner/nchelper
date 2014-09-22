@@ -2,11 +2,15 @@ Package: nchelper
 Type: Package
 Title: NetCDF variables accessed like an R array
 Version: 0.0-1
-Depends: RNetCDF
+Depends:
+    RNetCDF
 Authors@R: person("Michael D.","Sumner", role = c("aut", "cre"),
     email = "mdsumner@gmail.com")
 Maintainer: Michael D. Sumner <mdsumner@gmail.com>
-Description: Access NetCDF variables directly as if they are an R array in memory
+Description: Access NetCDF variables directly as if they are an R array in
+    memory
 License: GPL-3
 NeedsCompilation: no
 ByteCompile: yes
+Collate:
+    'nchelper.R'

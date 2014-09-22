@@ -25,7 +25,7 @@ nchelper <- function(file, varname = NULL) {
 
     nc <- try(open.nc(file))
     if (inherits(nc, "try-error")) stop("Cannot open file: ", file, nc)
-    on.exit(close.nc(nc))
+    ##on.exit(close.nc(nc))
 
     fileinq <- file.inq.nc(nc)
     nvars <- fileinq$nvars
@@ -40,7 +40,7 @@ nchelper <- function(file, varname = NULL) {
     varinq <- var.inq.nc(nc, varname)
     dims <- integer(length(varinq$dimids))
     for (i in seq_along(dims)) dims[i] <- dim.inq.nc(nc, varinq$dimids[i])$length
-    structure(.Data = list(file = file, varinq = varinq, dims = dims), class = "nchelper")
+    structure(.Data = list(file = file, varinq = varinq, dims = dims, con = nc), class = "nchelper")
 }
 
 ##' @rdname nchelper
@@ -70,8 +70,7 @@ names.nchelper <- function(x) {
     .processIndex <- function(index, dimsize) {
         if (is.language(index) & index == "") {
             index <- c(1, dimsize)
-        } else
-        {
+        } else {
             index <- eval(index)
             index <- c(index[1], length(index))
         }
@@ -81,10 +80,10 @@ names.nchelper <- function(x) {
     ## not monotonically increasing
     ## not within 1:n
     for (i in seq_along(indexlist)) indexlist[[i]] <- .processIndex(indexlist[[i]], ncdims[i])
-return(index)
-    nc <- open.nc(x$file)
+##return(index)
+    nc <- x$con
     d <- var.get.nc(nc, x$varinq$name, start = sapply(indexlist, "[", 1), count = sapply(indexlist, "[", 2))
-    close.nc(nc)
+
     d
 }
 
