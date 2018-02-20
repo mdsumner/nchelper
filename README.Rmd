@@ -46,9 +46,6 @@ dim(a)
 names(a)
 ```
 
-(Even though we asked for the variable "sst", we could also 
-see other names if there were any available.)
-
 Now use standard indexing idioms to extract data from this 4D array. 
 
 ```{r four-d}
@@ -58,5 +55,24 @@ image(a[400:800, 100:300,,], col = grcol)
 plot(a[,360,,] * 0.01, ylim = c(20, 32), type = "l")
 ```
 
+
+
+(Even though we asked for the variable "sst", we could have left it empty for a reminder about any available names.)
+
+```{r variables}
+a <- nchelper(f)
+a[]
+names(a)
+
+## so we go for one of the 2D ones (sst, anom, err, ice)
+err <- nchelper(f, "err")
+image(err[,,,])
+```
+
+
+This is a cheap and easy way to investigate the contents of a source. 
+```{r}
+image(nchelper(f, "anom")[,,,], col = hcl(240, c = 25, l = 10:90))
+```
  Please note that this project is released with a [Contributor Code of Conduct](CODE_OF_CONDUCT.md).
   By participating in this project you agree to abide by its terms.

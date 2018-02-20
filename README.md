@@ -34,8 +34,6 @@ names(a)
 #> [1] "sst"
 ```
 
-(Even though we asked for the variable "sst", we could also see other names if there were any available.)
-
 Now use standard indexing idioms to extract data from this 4D array.
 
 ``` r
@@ -57,4 +55,26 @@ plot(a[,360,,] * 0.01, ylim = c(20, 32), type = "l")
 
 <img src="man/figures/README-four-d-3.png" width="100%" />
 
-Please note that this project is released with a [Contributor Code of Conduct](CODE_OF_CONDUCT.md). By participating in this project you agree to abide by its terms.
+(Even though we asked for the variable "sst", we could have left it empty for a reminder about any available names.)
+
+``` r
+a <- nchelper(f)
+#> Warning in nchelper(f): no varname specified, returning time
+#>  choose varname from time,zlev,lat,lon,sst,anom,err,ice
+## 1-D var/dims aren't working right now
+## a[]
+
+## so we go for one of the 2D ones (sst, anom, err, ice)
+err <- nchelper(f, "err")
+image(err[,,,])
+```
+
+<img src="man/figures/README-variables-1.png" width="100%" />
+
+This is a cheap and easy way to investigate the contents of a source.
+
+``` r
+image(nchelper(f, "anom")[,,,], col = hcl(240, c = 25, l = 10:90))
+```
+
+<img src="man/figures/README-unnamed-chunk-1-1.png" width="100%" /> Please note that this project is released with a [Contributor Code of Conduct](CODE_OF_CONDUCT.md). By participating in this project you agree to abide by its terms.

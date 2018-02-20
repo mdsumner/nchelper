@@ -13,10 +13,11 @@
 #' a <- nchelper(f, "sst")
 #' plot(a[,360,,] * 0.01, ylim = c(20, 32), type = "l")
 nchelper <- function(file, varname = NULL) {
-    if (!file.exists(file)) stop("File does not exist: ", file)
+    #if (!file.exists(file)) stop("File does not exist: ", file)
 
     nc <- try(RNetCDF::open.nc(file))
-    if (inherits(nc, "try-error")) stop("Cannot open file: ", file, nc)
+    on.exit(RNetCDF::close.nc(nc), add = TRUE)
+    if (inherits(nc, "try-error")) stop("Cannot open source: ", file, nc)
     ##on.exit(close.nc(nc))
 
     fileinq <- file.inq.nc(nc)
@@ -32,7 +33,7 @@ nchelper <- function(file, varname = NULL) {
     varinq <- var.inq.nc(nc, varname)
     dims <- integer(length(varinq$dimids))
     for (i in seq_along(dims)) dims[i] <- dim.inq.nc(nc, varinq$dimids[i])$length
-    structure(.Data = list(file = file, varinq = varinq, dims = dims, con = nc), class = "nchelper")
+    structure(.Data = list(file = file, varinq = varinq, dims = dims), class = "nchelper")
 }
 
 #' dim
@@ -80,12 +81,11 @@ names.nchelper <- function(x) {
     ## not within 1:n
     for (i in seq_along(indexlist)) indexlist[[i]] <- .processIndex(indexlist[[i]], ncdims[i])
 ##return(index)
-    nc <- x$con
+    nc <- RNetCDF::open.nc(x$file)
+    on.exit(RNetCDF::close.nc(nc), add = TRUE)
     d <- var.get.nc(nc, x$varinq$name, start = sapply(indexlist, "[", 1), count = sapply(indexlist, "[", 2))
 
     d
 }
-
-
 
 
