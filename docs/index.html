@@ -73,8 +73,24 @@ devtools<span class="op">::</span><span class="kw"><a href="http://www.rdocument
 <div id="example" class="section level2">
 <h2 class="hasAnchor">
 <a href="#example" class="anchor"></a>Example</h2>
-<p>This is a basic example which shows you how to solve a common problem:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">## basic example code</code></pre></div>
+<p>This is an example that reads an inbuilt data set of sea surface temperature.</p>
+<p>First, find the file and open the variable “sst” as object <code>a</code>.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(nchelper)
+f &lt;-<span class="st"> </span><span class="kw">system.file</span>(<span class="st">"extdata"</span>, <span class="st">"avhrr-only-v2.20180126.nc"</span>, <span class="dt">package =</span> <span class="st">"nchelper"</span>)
+a &lt;-<span class="st"> </span><span class="kw"><a href="reference/nchelper.html">nchelper</a></span>(f, <span class="st">"sst"</span>)
+<span class="kw">dim</span>(a)
+<span class="co">#&gt; [1] 1440  720    1    1</span>
+<span class="kw">names</span>(a)
+<span class="co">#&gt; [1] "sst"</span></code></pre></div>
+<p>(Even though we asked for the variable “sst”, we could also see other names if there were any available.)</p>
+<p>Now use standard indexing idioms to extract data from this 4D array.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">grcol &lt;-<span class="st"> </span><span class="kw">grey</span>(<span class="kw">seq</span>(<span class="dv">0</span>, <span class="dv">1</span>, <span class="dt">length.out =</span> <span class="dv">12</span>))
+<span class="kw">image</span>(a[,,,], <span class="dt">col =</span> grcol)</code></pre></div>
+<p><img src="reference/figures/README-four-d-1.png" width="100%"></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">image</span>(a[<span class="dv">400</span><span class="op">:</span><span class="dv">800</span>, <span class="dv">100</span><span class="op">:</span><span class="dv">300</span>,,], <span class="dt">col =</span> grcol)</code></pre></div>
+<p><img src="reference/figures/README-four-d-2.png" width="100%"></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plot</span>(a[,<span class="dv">360</span>,,] <span class="op">*</span><span class="st"> </span><span class="fl">0.01</span>, <span class="dt">ylim =</span> <span class="kw">c</span>(<span class="dv">20</span>, <span class="dv">32</span>), <span class="dt">type =</span> <span class="st">"l"</span>)</code></pre></div>
+<p><img src="reference/figures/README-four-d-3.png" width="100%"></p>
 <p>Please note that this project is released with a <a href="CODE_OF_CONDUCT.md">Contributor Code of Conduct</a>. By participating in this project you agree to abide by its terms.</p>
 </div>
 </div>
