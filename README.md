@@ -1,4 +1,29 @@
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+[![lifecycle](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental) [![Travis-CI Build Status](http://badges.herokuapp.com/travis/mdsumner/nchelper?branch=master&env=BUILD_NAME=trusty_release&label=linux)](https://travis-ci.org/mdsumner/nchelper) [![Build Status](http://badges.herokuapp.com/travis/mdsumner/nchelper?branch=master&env=BUILD_NAME=osx_release&label=osx)](https://travis-ci.org/mdsumner/nchelper) [![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/github/mdsumner/nchelper?branch=master&svg=true)](https://ci.appveyor.com/project/mdsumner/nchelper)
+
 nchelper
 ========
 
-NetCDF variables as R arrays
+The goal of nchelper is to provide NetCDF variables as R arrays.
+
+Installation
+------------
+
+You can install nchelper from GitHub with:
+
+``` r
+# install.packages("devtools")
+devtools::install_github("mdsumner/nchelper")
+```
+
+Example
+-------
+
+This is a basic example which shows you how to solve a common problem:
+
+``` r
+## basic example code
+```
+
+Please note that this project is released with a [Contributor Code of Conduct](CODE_OF_CONDUCT.md). By participating in this project you agree to abide by its terms.

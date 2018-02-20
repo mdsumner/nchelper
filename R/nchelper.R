@@ -1,29 +1,21 @@
-#' NetCDF variables accessed like an R array
+#' nchelper
+#' 
+#' Helper functions to treat a NetCDF variable as an R array
 #'
-#' Access NetCDF variables directly as if they are an R array in memory
-#'
-#' @name nchelper-package
-#' @docType package
-#' @author Michael D. Sumner
-NULL
-
-
-##' Helper functions to treat a NetCDF variable as an R array
-##'
-##' Create an object to represent a NetCDF variable, primarily to access slices from it with R's Extract syntax for arrays.
-##' @title nchelper
-##' @param file NetCDF file
-##' @param varname NetCDF variable to access
-##' @return nchelper object
-##' @export
-##' @examples
-##' f <- "E:\\DATA\\Reynolds\\sst.wkmean.1990-present.nc"
-##' x <- nchelper(f, varname = "sst")
-##' x[,2,3]
+#' Create an object to represent a NetCDF variable, primarily to access slices from it with R's Extract syntax for arrays.
+#' @param file NetCDF file
+#' @param varname NetCDF variable to access
+#' @return nchelper object
+#' @export
+#' @importFrom RNetCDF open.nc file.inq.nc var.inq.nc dim.inq.nc var.get.nc
+#' @examples
+#' f <- system.file("extdata", "avhrr-only-v2.20180126.nc", package = "nchelper")
+#' a <- nchelper(f, "sst")
+#' plot(a[,360,,] * 0.01, ylim = c(20, 32), type = "l")
 nchelper <- function(file, varname = NULL) {
     if (!file.exists(file)) stop("File does not exist: ", file)
 
-    nc <- try(open.nc(file))
+    nc <- try(RNetCDF::open.nc(file))
     if (inherits(nc, "try-error")) stop("Cannot open file: ", file, nc)
     ##on.exit(close.nc(nc))
 
@@ -43,18 +35,25 @@ nchelper <- function(file, varname = NULL) {
     structure(.Data = list(file = file, varinq = varinq, dims = dims, con = nc), class = "nchelper")
 }
 
-##' @rdname nchelper
-##' @export
+#' dim
+#' 
+#' @param x `nchelper` object
+#' @export
 dim.nchelper <- function(x) {
     x$dims
 }
-##' @rdname nchelper
-##' @export
+#' names
+#' @param x `nchelper`` object
+#' @export
 names.nchelper <- function(x) {
     x$varinq$name
 }
-##' @rdname nchelper
-##' @export
+#' Extract
+#' 
+#' @param x `nchelper` object
+#' @param ... index arguments, see `base::Extract`
+#' @param drop remove degenerate singleton dimensions, `TRUE` by default
+#' @export
 "[.nchelper" <- function(x, ..., drop = TRUE) {
     ncdims <- dim(x)
     ndims <- length(ncdims)
