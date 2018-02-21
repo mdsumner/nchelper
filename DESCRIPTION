@@ -2,8 +2,14 @@ Package: nchelper
 Type: Package
 Title: Access 'NetCDF' Variables via Array Methods
 Version: 0.0.5
-Imports:
-    RNetCDF
+Imports: 
+    RNetCDF,
+    magrittr,
+    dbplyr,
+    tibble,
+    ncmeta,
+    dplyr,
+    stats
 Authors@R: person("Michael D.","Sumner", role = c("aut", "cre"),
     email = "mdsumner@gmail.com")
 Description: Access 'NetCDF' variables using standard base R idioms. 

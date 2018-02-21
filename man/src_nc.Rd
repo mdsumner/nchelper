@@ -7,7 +7,7 @@
 src_nc(ncsource)
 }
 \arguments{
-\item{ncsource}{}
+\item{ncsource}{file or online link NetCDF source}
 }
 \value{
 a 'src_nc', a virtual-database for a NetCDF source
@@ -17,7 +17,8 @@ NetCDF virtual tables
 }
 \examples{
 f <- system.file("extdata", "S2008001.L3m_DAY_CHL_chlor_a_9km.nc", package = "ncmeta")
-src_nc(f)
+nc <- src_nc(f)
+print(nc)
 \dontrun{
 nc <- src_nc("http://coastwatch.pfeg.noaa.gov/erddap/griddap/erdQSwind3day")
 nc

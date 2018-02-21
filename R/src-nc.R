@@ -1,13 +1,64 @@
-simulate_nc <- function() {
-  structure(list(), class = c("NetCDF", "DBIConnection"))
+#' Tbl
+#'
+#' 
+#' See \code{dplyr::\link[dplyr]{tbl}} for details.
+#'
+#' @name tbl
+#' @rdname dplyr-verbs
+#' @keywords internal
+#' @importFrom dplyr tbl 
+#' @export tbl
+#' @importFrom dbplyr op_base
+#' @importFrom tibble trunc_mat
+#' @export
+#' @examples 
+#' f <- system.file("extdata", "S2008001.L3m_DAY_CHL_chlor_a_9km.nc", package = "ncmeta")
+#' src_nc(f) %>% tbl("lat")
+tbl.src_nc <- function(src, variable, ...) {
+  out <- dplyr::make_tbl("lazy", ops = op_base(NULL, variable), src = src)
+  class(out) <- c("tbl_ncdb", class(out))
+  out
+}
+#' @export
+as.data.frame.tbl_ncdb <- function(x, row.names = NULL, optional = NULL,
+                                   ..., n = Inf) {
+  collect(x, ..., n = n)
+}
+#' Collect
+#'
+#' 
+#' See \code{utils::\link[utils]{head}} for details.
+#'
+#' @name head
+#' @keywords internal
+#' @export
+#' @importFrom utils head
+head.tbl_ncdb <- function(x, n = 6L, ...) {
+  collect(x, ..., n = n)
 }
 
 
-
-#' @importFrom dplyr tbl
+#' Collect
+#'
+#' 
+#' See \code{dplyr::\link[dplyr]{collect}} for details.
+#'
+#' @name collect
+#' @rdname dplyr-verbs
+#' @keywords internal
 #' @export
-tbl.src_nc <- function(src, variable, nmax = 10) {
-  nc_con <- RNetCDF::open.nc(src$ncsource)
+#' @importFrom dplyr collect
+#' @export collect
+collect.tbl_ncdb <- function(x, ...,  n = Inf ) {
+  read_nr_ncdb(x, nmax = n)
+}
+
+read_nr_ncdb <- function(x, nmax = -1, ...) {
+  if (nmax < 1) nmax <- 1
+#  if (nmax  < 1) return(tibble::
+  nc_con <- RNetCDF::open.nc(x$src$ncsource)
+  variable <- x$ops$vars[1L]
+  #browser()
   dims <- ncmeta::nc_dims(nc_con, variable)
   #var <- ncmeta::nc_var(nc_con, variable)
   starts <- rep(1L, nrow(dims))
@@ -15,19 +66,13 @@ tbl.src_nc <- function(src, variable, nmax = 10) {
   counts[1L] <- min(c(nmax, as.integer(dims$length[1])))
   
   #  print(sprintf("returning %i rows of %i", counts[1L], as.integer(prod(dims$length))))
-  df <-   tibble::as_tibble(setNames(list(as.vector(RNetCDF::var.get.nc(nc_con, variable, 
+  df <-   tibble::as_tibble(stats::setNames(list(as.vector(RNetCDF::var.get.nc(nc_con, variable, 
                                                                         start = starts, count = counts))), 
                                      variable))
   df
-  #df_nc <- dbplyr::tbl_lazy(df, src = simulate_sqlite())
-  #' df_sqlite %>% summarise(x = sd(x)) %>% show_query()
-  out <- dplyr::make_tbl("lazy", ops = op_base(df, names(df)), src = src)
-  class(out) <- c("tbl_ncdb", class(out))
-  out
 }
-head.tbl_ncdb <- function(x, n = 6L) {
- 
-}
+#' @export
+#' @importFrom dbplyr op_vars
 dim.tbl_ncdb <- function(x) {
   c(NA, length(op_vars(x$ops)))
 }
@@ -45,7 +90,7 @@ print.src_nc <- function(x, ...) {
 }
 #' NetCDF virtual tables
 #'
-#' @param ncsource 
+#' @param ncsource file or online link NetCDF source
 #'
 #' @return a 'src_nc', a virtual-database for a NetCDF source
 #' @export
@@ -53,6 +98,7 @@ print.src_nc <- function(x, ...) {
 #' @examples
 #' f <- system.file("extdata", "S2008001.L3m_DAY_CHL_chlor_a_9km.nc", package = "ncmeta")
 #' nc <- src_nc(f)
+#' print(nc)
 #' \dontrun{
 #' nc <- src_nc("http://coastwatch.pfeg.noaa.gov/erddap/griddap/erdQSwind3day")
 #' nc
@@ -65,15 +111,3 @@ src_nc <- function(ncsource) {
   )
 }
 
-
-#' @importFrom dplyr tbl
-# tbl.src_nc <- function(x, from, ...) {
-#   if (missing(from)) stop("need 'from' variable name")
-#   stopifnot(from %in% db_list_tables(x))
-#   a <- nchelper(x$con, from)
-#   dm <- dim(a)
-#   starts <- rep(1, length(dm))
-#   counts <- starts
-#   counts[1] <- 6
-#   tibble::as_tibble(setNames(list(RNetCDF::var.get.nc(RNetCDF::open.nc(x$con), from, start = starts, count = counts)), from))
-# }
