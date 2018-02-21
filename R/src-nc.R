@@ -1,28 +1,65 @@
-
-tbl_nc <- function(variable) {
-  tibble::as_tibble(setNames(list(RNetCDF::var.get.nc(RNetCDF::open.nc(ncsource), variable)), 
-                             variable))
+simulate_nc <- function() {
+  structure(list(), class = c("NetCDF", "DBIConnection"))
 }
+
+
+
+#' @importFrom dplyr tbl
+#' @export
+tbl.src_nc <- function(src, variable, nmax = 10) {
+  nc_con <- RNetCDF::open.nc(src$ncsource)
+  dims <- ncmeta::nc_dims(nc_con, variable)
+  #var <- ncmeta::nc_var(nc_con, variable)
+  starts <- rep(1L, nrow(dims))
+  counts <- rep(1L, nrow(dims))
+  counts[1L] <- min(c(nmax, as.integer(dims$length[1])))
+  
+  #  print(sprintf("returning %i rows of %i", counts[1L], as.integer(prod(dims$length))))
+  df <-   tibble::as_tibble(setNames(list(as.vector(RNetCDF::var.get.nc(nc_con, variable, 
+                                                                        start = starts, count = counts))), 
+                                     variable))
+  df
+  #df_nc <- dbplyr::tbl_lazy(df, src = simulate_sqlite())
+  #' df_sqlite %>% summarise(x = sd(x)) %>% show_query()
+  out <- dplyr::make_tbl("lazy", ops = op_base(df, names(df)), src = src)
+  class(out) <- c("tbl_ncdb", class(out))
+  out
+}
+head.tbl_ncdb <- function(x, n = 6L) {
+ 
+}
+dim.tbl_ncdb <- function(x) {
+  c(NA, length(op_vars(x$ops)))
+}
+#' @importFrom dplyr src_tbls
 src_tbls.src_nc <- function(x) {
   ncmeta::nc_vars(x$ncsource)$name
 }
+#' @export
 print.src_nc <- function(x, ...) {
-  print(x$name)
-  print(src_tbls(x))
+  ## needs to be format.src_ncd
+
+  print(sprintf("src: %s", x$name))
+  print(sprintf("tbls: %s", paste0(src_tbls(x), collapse = ", ")))
+  print(sprintf("origin: %s", dirname(x$ncsource)))
 }
-#' Title
+#' NetCDF virtual tables
 #'
 #' @param ncsource 
 #'
-#' @return
+#' @return a 'src_nc', a virtual-database for a NetCDF source
 #' @export
 #'
 #' @examples
 #' f <- system.file("extdata", "S2008001.L3m_DAY_CHL_chlor_a_9km.nc", package = "ncmeta")
-#' src_nc(f)
+#' nc <- src_nc(f)
+#' \dontrun{
+#' nc <- src_nc("http://coastwatch.pfeg.noaa.gov/erddap/griddap/erdQSwind3day")
+#' nc
+#' }
 src_nc <- function(ncsource) {
-  structure(list(tbl_f = tbl_nc,
-                 name = sprintf("<NetCDF: %s>", ncsource),
+  structure(list(tbl_f = tbl.src_nc,
+                 name = sprintf("<NetCDF: %s>", basename(ncsource)),
                  ncsource = ncsource),
             class = c("src_nc", "src")
   )
