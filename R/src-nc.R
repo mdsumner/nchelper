@@ -26,9 +26,13 @@
 tbl.src_nc <- function(src, variable, ...) {
   varcompare <- variable
   grids <- ncmeta::nc_grids(src$ncsource)
-  grids <- dplyr::inner_join(dplyr::filter(grids, variable == varcompare) %>% 
+  grid_vars <- dplyr::inner_join(dplyr::filter(grids, variable == varcompare) %>% 
                                dplyr::select(.data$grid), grids, "grid")
-  out <- dplyr::make_tbl("lazy", ops = op_base(NULL, grids$variable), src = src)
+  dim_vars <- ncmeta::nc_axes(src$ncsource) %>% dplyr::filter(.data$variable == varcompare) %>% 
+    dplyr::inner_join(ncmeta::nc_dims(src$ncsource), c("dimension" = "id"))
+  all_vars <- c(dim_vars$name, grid_vars$variable)
+  print(all_vars)
+  out <- dplyr::make_tbl("lazy", ops = op_base(NULL, unique(all_vars), class= "ncdb"), src = src)
   class(out) <- c("tbl_ncdb", class(out))
   out
 }
@@ -66,19 +70,29 @@ collect.tbl_ncdb <- function(x, ...,  n = Inf ) {
   read_nr_ncdb(x, nmax = n)
 }
 
+var_dim_get <- function(con, x) {
+  tib <- tibble::tibble(variable = x$ops$vars)
+  vars <- ncmeta::nc_vars(con) %>% dplyr::inner_join(tib, c("name" = "variable"))
+  vars$dim_var <- vars$ndims == max(vars$ndims)
+  vars
+}
 read_nr_ncdb <- function(x, nmax = -1, ...) {
   if (nmax < 1) nmax <- 1
 #  if (nmax  < 1) return(tibble::
   nc_con <- RNetCDF::open.nc(x$src$ncsource)
-  variables <- x$ops$vars
+  variables <- var_dim_get(nc_con, x)
+  var_variables <- variables$name[variables$dim_var]
+  dim_variables <- variables$name[!variables$dim_var]
   #browser()
-  dims <- ncmeta::nc_axes(nc_con, variables[1L]) %>% dplyr::inner_join(ncmeta::nc_dims(nc_con), c("dimension" = "id"))
+  dims <- ncmeta::nc_axes(nc_con, var_variables[1L]) %>% dplyr::inner_join(ncmeta::nc_dims(nc_con), c("dimension" = "id"))
   starts <- rep(1L, nrow(dims))
   counts <- rep(1L, nrow(dims))
   counts[1L] <- min(c(nmax, as.integer(prod(dims$length))))
-  df <- tibble::as_tibble(stats::setNames(purrr::map(variables, ~as.vector(RNetCDF::var.get.nc(nc_con, .x,
+  df <- tibble::as_tibble(stats::setNames(purrr::map(var_variables, ~as.vector(RNetCDF::var.get.nc(nc_con, .x,
                                                        start = starts, count = counts))), 
-           variables))
+           var_variables))
+  ## TODO expand out the dim vars
+  df[dim_variables] <- NA  
   df
 }
 #' @export
