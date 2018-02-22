@@ -19,5 +19,13 @@ See \code{dplyr::\link[dplyr]{collect}} for details.
 \examples{
 f <- system.file("extdata", "S2008001.L3m_DAY_CHL_chlor_a_9km.nc", package = "ncmeta")
 src_nc(f) \%>\% tbl("lat")
+src_nc(f) \%>\% tbl("palette")
+
+f2 <- system.file("extdata", "avhrr-only-v2.20180126.nc", package = "nchelper")
+tbl(src_nc(f2), "sst")
+tbl(src_nc(f2), "zlev")
+tbl(src_nc(f2), "time")
+tbl(src_nc(f2), "lat")
+tbl(src_nc(f2), "lon")
 }
 \keyword{internal}

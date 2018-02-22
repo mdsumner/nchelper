@@ -61,8 +61,10 @@ plot(a[,360,,] * 0.01, ylim = c(20, 32), type = "l")
 a <- nchelper(f)
 #> Warning in nchelper(f): no varname specified, returning time
 #>  choose varname from time,zlev,lat,lon,sst,anom,err,ice
-## 1-D var/dims aren't working right now
-## a[]
+a[]
+#> [1] 14635
+names(a)
+#> [1] "time"
 
 ## so we go for one of the 2D ones (sst, anom, err, ice)
 err <- nchelper(f, "err")

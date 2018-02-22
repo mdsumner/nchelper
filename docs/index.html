@@ -94,8 +94,10 @@ a &lt;-<span class="st"> </span><span class="kw"><a href="reference/nchelper.htm
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">a &lt;-<span class="st"> </span><span class="kw"><a href="reference/nchelper.html">nchelper</a></span>(f)
 <span class="co">#&gt; Warning in nchelper(f): no varname specified, returning time</span>
 <span class="co">#&gt;  choose varname from time,zlev,lat,lon,sst,anom,err,ice</span>
-## 1-D var/dims aren't working right now
-## a[]
+a[]
+<span class="co">#&gt; [1] 14635</span>
+<span class="kw">names</span>(a)
+<span class="co">#&gt; [1] "time"</span>
 
 ## so we go for one of the 2D ones (sst, anom, err, ice)
 err &lt;-<span class="st"> </span><span class="kw"><a href="reference/nchelper.html">nchelper</a></span>(f, <span class="st">"err"</span>)

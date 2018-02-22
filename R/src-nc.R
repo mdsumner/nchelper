@@ -10,12 +10,25 @@
 #' @export tbl
 #' @importFrom dbplyr op_base
 #' @importFrom tibble trunc_mat
+#' @importFrom rlang .data
 #' @export
 #' @examples 
 #' f <- system.file("extdata", "S2008001.L3m_DAY_CHL_chlor_a_9km.nc", package = "ncmeta")
 #' src_nc(f) %>% tbl("lat")
+#' src_nc(f) %>% tbl("palette")
+#' 
+#' f2 <- system.file("extdata", "avhrr-only-v2.20180126.nc", package = "nchelper")
+#' tbl(src_nc(f2), "sst")
+#' tbl(src_nc(f2), "zlev")
+#' tbl(src_nc(f2), "time")
+#' tbl(src_nc(f2), "lat")
+#' tbl(src_nc(f2), "lon")
 tbl.src_nc <- function(src, variable, ...) {
-  out <- dplyr::make_tbl("lazy", ops = op_base(NULL, variable), src = src)
+  varcompare <- variable
+  grids <- ncmeta::nc_grids(src$ncsource)
+  grids <- dplyr::inner_join(dplyr::filter(grids, variable == varcompare) %>% 
+                               dplyr::select(.data$grid), grids, "grid")
+  out <- dplyr::make_tbl("lazy", ops = op_base(NULL, grids$variable), src = src)
   class(out) <- c("tbl_ncdb", class(out))
   out
 }
@@ -57,18 +70,15 @@ read_nr_ncdb <- function(x, nmax = -1, ...) {
   if (nmax < 1) nmax <- 1
 #  if (nmax  < 1) return(tibble::
   nc_con <- RNetCDF::open.nc(x$src$ncsource)
-  variable <- x$ops$vars[1L]
+  variables <- x$ops$vars
   #browser()
-  dims <- ncmeta::nc_dims(nc_con, variable)
-  #var <- ncmeta::nc_var(nc_con, variable)
+  dims <- ncmeta::nc_axes(nc_con, variables[1L]) %>% dplyr::inner_join(ncmeta::nc_dims(nc_con), c("dimension" = "id"))
   starts <- rep(1L, nrow(dims))
   counts <- rep(1L, nrow(dims))
-  counts[1L] <- min(c(nmax, as.integer(dims$length[1])))
-  
-  #  print(sprintf("returning %i rows of %i", counts[1L], as.integer(prod(dims$length))))
-  df <-   tibble::as_tibble(stats::setNames(list(as.vector(RNetCDF::var.get.nc(nc_con, variable, 
-                                                                        start = starts, count = counts))), 
-                                     variable))
+  counts[1L] <- min(c(nmax, as.integer(prod(dims$length))))
+  df <- tibble::as_tibble(stats::setNames(purrr::map(variables, ~as.vector(RNetCDF::var.get.nc(nc_con, .x,
+                                                       start = starts, count = counts))), 
+           variables))
   df
 }
 #' @export
